@@ -137,8 +137,9 @@ module WashOut
         header = { 'value' => header } unless header.is_a? Hash
         header = HashWithIndifferentAccess.new(header)
       end
-
-      render :template => "wash_out/#{soap_config.wsdl_style}/response",
+      # render :template => "wash_out/#{soap_config.wsdl_style}/response",
+      wsdl_style = ENV["RAILS_ENV"] == "docker" ? "document" : soap_config.wsdl_style
+      render :template => "wash_out/#{wsdl_style}/response",
              :layout => false,
              :locals => {
                :header => header.present? ? inject.call(header, @action_spec[:header_out])
@@ -168,7 +169,9 @@ module WashOut
     # Rails do not support sequental rescue_from handling, that is, rescuing an
     # exception from a rescue_from handler. Hence this function is a public API.
     def render_soap_error(message, code=nil)
-      render :template => "wash_out/#{soap_config.wsdl_style}/error", :status => 500,
+      # render :template => "wash_out/#{soap_config.wsdl_style}/response",
+      wsdl_style = ENV["RAILS_ENV"] == "docker" ? "document" : soap_config.wsdl_style
+      render :template => "wash_out/#{wsdl_style}/error", :status => 500,
              :layout => false,
              :locals => { :error_message => message, :error_code => (code || 'Server') },
              :content_type => 'text/xml'
